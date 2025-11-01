@@ -152,6 +152,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    overflow: hidden;
+    max-height: 100%;
 }
 
 .info-panel {
@@ -173,6 +175,8 @@ body {
 
 #unit-info {
     min-height: 180px;
+    max-height: 220px;
+    overflow-y: auto;
 }
 
 #unit-details {
@@ -186,6 +190,8 @@ body {
 
 #action-panel {
     min-height: 200px;
+    max-height: 240px;
+    overflow-y: auto;
 }
 
 #action-buttons {
@@ -194,9 +200,10 @@ body {
 }
 
 #battle-log {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 200px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #log-content {
@@ -286,20 +293,28 @@ body {
 }
 
 /* Scrollbar Styling */
-#battle-log::-webkit-scrollbar {
+#battle-log::-webkit-scrollbar,
+#unit-info::-webkit-scrollbar,
+#action-panel::-webkit-scrollbar {
     width: 8px;
 }
 
-#battle-log::-webkit-scrollbar-track {
+#battle-log::-webkit-scrollbar-track,
+#unit-info::-webkit-scrollbar-track,
+#action-panel::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
 }
 
-#battle-log::-webkit-scrollbar-thumb {
+#battle-log::-webkit-scrollbar-thumb,
+#unit-info::-webkit-scrollbar-thumb,
+#action-panel::-webkit-scrollbar-thumb {
     background: rgba(240, 165, 0, 0.5);
     border-radius: 4px;
 }
 
-#battle-log::-webkit-scrollbar-thumb:hover {
+#battle-log::-webkit-scrollbar-thumb:hover,
+#unit-info::-webkit-scrollbar-thumb:hover,
+#action-panel::-webkit-scrollbar-thumb:hover {
     background: rgba(240, 165, 0, 0.7);
 }

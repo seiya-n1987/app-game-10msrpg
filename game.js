@@ -428,8 +428,7 @@ class AIController {
         }
 
         ui.addLog('--- 敵ターン終了 ---', 'info');
-        this.state.nextPhase();
-        ui.updateTurnInfo(this.state.turnCount, this.state.phase);
+        // nextPhase()は呼ばない（endTurn()で呼ばれる）
     }
 
     async executeUnitAction(unit, ui, renderer) {
@@ -458,17 +457,23 @@ class AIController {
                         const dist = Math.abs(u.x - unit.x) + Math.abs(u.y - unit.y);
                         const closestDist = Math.abs(closest.x - unit.x) + Math.abs(closest.y - unit.y);
                         return dist < closestDist ? u : closest;
-                    });
+                    }, playerUnits[0]);
 
                     const bestMove = moveRange.reduce((best, pos) => {
                         const dist = Math.abs(pos.x - nearest.x) + Math.abs(pos.y - nearest.y);
                         const bestDist = Math.abs(best.x - nearest.x) + Math.abs(best.y - nearest.y);
                         return dist < bestDist ? pos : best;
-                    });
+                    }, moveRange[0]);
 
                     this.state.moveUnit(unit, bestMove.x, bestMove.y);
                     ui.addLog(`${unit.name}が移動`, 'info');
+                } else {
+                    // 移動範囲がない場合は待機
+                    ui.addLog(`${unit.name}は行動できない`, 'info');
                 }
+            } else {
+                // 敵ユニットがいない場合は待機
+                ui.addLog(`${unit.name}は待機`, 'info');
             }
         }
 
@@ -590,7 +595,14 @@ class GameController {
             const unit = this.state.selectedUnit;
             this.state.moveUnit(unit, x, y);
             this.ui.addLog(`${unit.name}が移動`, 'info');
-            this.cancelAction();
+            unit.acted = true;
+            this.state.selectedUnit = null;
+            this.state.gameMode = 'select';
+            this.state.moveRange = [];
+            this.state.attackRange = [];
+            this.ui.updateActionButtons(false, 'select');
+            this.ui.updateUnitInfo(null);
+            this.renderer.render(this.state);
         }
     }
 
@@ -652,10 +664,25 @@ class GameController {
         this.ui.updateActionButtons(false, 'select');
         this.ui.updateUnitInfo(null);
 
+        // プレイヤーターンから敵ターンに移行
         this.state.nextPhase();
         this.ui.updateTurnInfo(this.state.turnCount, this.state.phase);
 
+        // 敵ターンを実行
         await this.ai.executeTurn(this.ui, this.renderer);
+
+        // 敵ターン終了後、プレイヤーターンに戻る
+        this.state.nextPhase();
+        this.ui.updateTurnInfo(this.state.turnCount, this.state.phase);
+
+        // プレイヤーターン開始時の状態をリセット
+        this.state.selectedUnit = null;
+        this.state.gameMode = 'select';
+        this.state.moveRange = [];
+        this.state.attackRange = [];
+        this.ui.updateActionButtons(false, 'select');
+        this.ui.updateUnitInfo(null);
+        this.ui.addLog('--- 味方ターン開始 ---', 'info');
 
         this.checkGameEnd();
         this.renderer.render(this.state);

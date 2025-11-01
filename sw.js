@@ -36,15 +36,52 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             );
+        }).then(() => {
+            // Safely claim clients with error handling
+            return self.clients.claim().catch((err) => {
+                // Ignore errors if clients are not available
+                console.log('Clients claim failed (may be expected):', err);
+            });
         })
     );
-    self.clients.claim();
 });
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+    const request = event.request;
+    
+    // Skip non-GET requests
+    if (request.method !== 'GET') {
+        event.respondWith(fetch(request));
+        return;
+    }
+
+    let url;
+    try {
+        url = new URL(request.url);
+    } catch (e) {
+        // Invalid URL, skip caching
+        event.respondWith(fetch(request));
+        return;
+    }
+
+    // Skip caching for non-HTTP/HTTPS requests (chrome-extension, chrome, about, data, etc.)
+    if (!url.protocol.startsWith('http')) {
+        event.respondWith(fetch(request));
+        return;
+    }
+
+    // Skip caching for chrome-extension and other special schemes
+    if (url.protocol === 'chrome-extension:' || 
+        url.protocol === 'chrome:' || 
+        url.protocol === 'about:' ||
+        url.protocol === 'data:') {
+        event.respondWith(fetch(request));
+        return;
+    }
+
     event.respondWith(
-        caches.match(event.request)
+        caches.match(request)
             .then((response) => {
                 // Cache hit - return response
                 if (response) {
@@ -52,7 +89,7 @@ self.addEventListener('fetch', (event) => {
                 }
 
                 // Clone the request
-                const fetchRequest = event.request.clone();
+                const fetchRequest = request.clone();
 
                 return fetch(fetchRequest).then((response) => {
                     // Check if valid response
@@ -63,10 +100,16 @@ self.addEventListener('fetch', (event) => {
                     // Clone the response
                     const responseToCache = response.clone();
 
-                    caches.open(CACHE_NAME)
-                        .then((cache) => {
-                            cache.put(event.request, responseToCache);
-                        });
+                    // Only cache HTTP/HTTPS requests
+                    if (url.protocol.startsWith('http')) {
+                        caches.open(CACHE_NAME)
+                            .then((cache) => {
+                                cache.put(request, responseToCache);
+                            })
+                            .catch((err) => {
+                                console.log('Cache put failed:', err);
+                            });
+                    }
 
                     return response;
                 });
