@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#0f3460;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#16213e;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <!-- Background -->
+    <rect width="192" height="192" fill="url(#bg)"/>
+
+    <!-- Border -->
+    <rect x="9.600000000000001" y="9.600000000000001" width="172.8" height="172.8"
+          fill="none" stroke="#f0a500" stroke-width="9.600000000000001"/>
+
+    <!-- Sword -->
+    <polygon points="57.599999999999994,134.39999999999998 134.39999999999998,57.599999999999994 144,67.19999999999999 67.19999999999999,144"
+             fill="#e94560"/>
+
+    <!-- Shield -->
+    <circle cx="115.19999999999999" cy="115.19999999999999" r="28.799999999999997" fill="#3498db"/>
+
+    <!-- Text -->
+    <text x="96" y="168.96" font-family="Arial, sans-serif"
+          font-size="28.799999999999997" font-weight="bold" fill="#f0a500"
+          text-anchor="middle">10分</text>
+</svg>

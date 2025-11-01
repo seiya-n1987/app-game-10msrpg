@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="10分で遊べるシミュレーションRPG">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>10分RPG - タクティカルバトル</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/icon-192.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Game Title Screen -->
+        <div id="title-screen" class="screen active">
+            <h1>10分RPG</h1>
+            <p class="subtitle">タクティカルバトル</p>
+            <button id="start-btn" class="btn-primary">戦闘開始</button>
+            <div class="flavor-text">
+                <p>剣と魔法の世界で繰り広げられる戦術バトル</p>
+                <p>毎回異なる地形、異なる状況で戦え</p>
+            </div>
+        </div>
+
+        <!-- Main Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div id="turn-info">ターン: <span id="turn-count">1</span></div>
+                <div id="phase-info">フェーズ: <span id="current-phase">味方</span></div>
+                <button id="end-turn-btn" class="btn-secondary">ターン終了</button>
+            </div>
+
+            <div class="game-main">
+                <div class="battlefield-container">
+                    <canvas id="battlefield" width="600" height="600"></canvas>
+                </div>
+
+                <div class="sidebar">
+                    <div id="unit-info" class="info-panel">
+                        <h3>ユニット情報</h3>
+                        <div id="unit-details">
+                            <p>ユニットを選択してください</p>
+                        </div>
+                    </div>
+
+                    <div id="action-panel" class="info-panel">
+                        <h3>アクション</h3>
+                        <div id="action-buttons">
+                            <button id="move-btn" class="btn-action" disabled>移動</button>
+                            <button id="attack-btn" class="btn-action" disabled>攻撃</button>
+                            <button id="wait-btn" class="btn-action" disabled>待機</button>
+                            <button id="cancel-btn" class="btn-action" disabled>キャンセル</button>
+                        </div>
+                    </div>
+
+                    <div id="battle-log" class="info-panel">
+                        <h3>バトルログ</h3>
+                        <div id="log-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory-screen" class="screen">
+            <h1>勝利!</h1>
+            <p class="result-text">敵を全滅させました</p>
+            <div id="victory-stats"></div>
+            <button id="restart-victory-btn" class="btn-primary">もう一度プレイ</button>
+        </div>
+
+        <!-- Defeat Screen -->
+        <div id="defeat-screen" class="screen">
+            <h1>敗北...</h1>
+            <p class="result-text">味方が全滅しました</p>
+            <div id="defeat-stats"></div>
+            <button id="restart-defeat-btn" class="btn-primary">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Icon Generator</title>
+</head>
+<body>
+    <h1>Icon Generator for 10分RPG</h1>
+    <p>Open the browser console and icons will be generated as downloadable links below:</p>
+    <div id="icons"></div>
+
+    <script>
+        function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#0f3460');
+            gradient.addColorStop(0.5, '#16213e');
+            gradient.addColorStop(1, '#1a1a2e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Border
+            ctx.strokeStyle = '#f0a500';
+            ctx.lineWidth = size * 0.05;
+            ctx.strokeRect(size * 0.05, size * 0.05, size * 0.9, size * 0.9);
+
+            // Draw sword (symbolic)
+            ctx.fillStyle = '#e94560';
+            ctx.beginPath();
+            ctx.moveTo(size * 0.3, size * 0.7);
+            ctx.lineTo(size * 0.7, size * 0.3);
+            ctx.lineTo(size * 0.75, size * 0.35);
+            ctx.lineTo(size * 0.35, size * 0.75);
+            ctx.closePath();
+            ctx.fill();
+
+            // Draw shield (symbolic)
+            ctx.fillStyle = '#3498db';
+            ctx.beginPath();
+            ctx.arc(size * 0.6, size * 0.6, size * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Text
+            ctx.fillStyle = '#f0a500';
+            ctx.font = `bold ${size * 0.15}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('10分', size * 0.5, size * 0.85);
+
+            return canvas;
+        }
+
+        function createDownloadLink(canvas, filename) {
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.textContent = `Download ${filename}`;
+                a.style.display = 'block';
+                a.style.margin = '10px';
+                document.getElementById('icons').appendChild(a);
+            });
+        }
+
+        // Generate icons
+        const icon192 = generateIcon(192);
+        const icon512 = generateIcon(512);
+
+        createDownloadLink(icon192, 'icon-192.png');
+        createDownloadLink(icon512, 'icon-512.png');
+
+        console.log('Icons generated! Click the links above to download.');
+    </script>
+</body>
+</html>

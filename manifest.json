@@ -1,0 +1,26 @@
+{
+  "name": "10分RPG - タクティカルバトル",
+  "short_name": "10分RPG",
+  "description": "10分で遊べるシミュレーションRPG。毎回異なる地形と状況で戦術バトルを楽しめます。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "lang": "ja"
+}
