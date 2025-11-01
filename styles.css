@@ -117,12 +117,27 @@ body {
     border: 2px solid #f0a500;
     margin-bottom: 1rem;
     border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-left {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.header-right {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
 }
 
 #turn-info, #phase-info {
     font-size: 1.2rem;
     color: #f0a500;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
 }
 
 .game-main {
@@ -317,4 +332,245 @@ body {
 #unit-info::-webkit-scrollbar-thumb:hover,
 #action-panel::-webkit-scrollbar-thumb:hover {
     background: rgba(240, 165, 0, 0.7);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    overflow-y: auto;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #f0a500;
+    border-radius: 8px;
+    padding: 0;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    margin: 2rem auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 2px solid rgba(240, 165, 0, 0.3);
+}
+
+.modal-header h2 {
+    color: #e94560;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: #f0a500;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: #ffb733;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Unit List Styles */
+.unit-list-section {
+    margin-bottom: 2rem;
+}
+
+.unit-list-section:last-child {
+    margin-bottom: 0;
+}
+
+.unit-list-section h3 {
+    color: #f0a500;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(240, 165, 0, 0.3);
+    padding-bottom: 0.5rem;
+}
+
+.units-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.unit-item {
+    background: rgba(15, 52, 96, 0.7);
+    border: 2px solid rgba(240, 165, 0, 0.5);
+    border-radius: 6px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.unit-item:hover {
+    border-color: #f0a500;
+    background: rgba(15, 52, 96, 0.9);
+    transform: translateX(4px);
+}
+
+.unit-item.acted {
+    opacity: 0.6;
+}
+
+.unit-item-left {
+    flex: 1;
+}
+
+.unit-item-name {
+    color: #eee;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.unit-item-class {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.unit-item-hp {
+    color: #5cb85c;
+    font-size: 0.95rem;
+}
+
+.unit-item-hp.low {
+    color: #d9534f;
+}
+
+.unit-item-hp.medium {
+    color: #f0ad4e;
+}
+
+.unit-item-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
+}
+
+.unit-team-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.unit-team-badge.player {
+    background: rgba(92, 184, 92, 0.3);
+    color: #5cb85c;
+    border: 1px solid #5cb85c;
+}
+
+.unit-team-badge.enemy {
+    background: rgba(233, 69, 96, 0.3);
+    color: #e94560;
+    border: 1px solid #e94560;
+}
+
+/* Unit Detail Styles */
+.unit-detail-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.unit-detail-item {
+    background: rgba(15, 52, 96, 0.7);
+    border: 1px solid rgba(240, 165, 0, 0.3);
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.unit-detail-item-label {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.unit-detail-item-value {
+    color: #f0a500;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.unit-detail-hp-bar {
+    width: 100%;
+    height: 20px;
+    background: #333;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.unit-detail-hp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #5cb85c 0%, #f0ad4e 50%, #d9534f 100%);
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+/* Mobile Responsive for Modal */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .header-left {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+
+    .header-right {
+        flex-wrap: wrap;
+    }
+
+    .unit-detail-info {
+        grid-template-columns: 1fr;
+    }
 }

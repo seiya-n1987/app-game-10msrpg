@@ -27,9 +27,14 @@
         <!-- Main Game Screen -->
         <div id="game-screen" class="screen">
             <div class="game-header">
-                <div id="turn-info">ターン: <span id="turn-count">1</span></div>
-                <div id="phase-info">フェーズ: <span id="current-phase">味方</span></div>
-                <button id="end-turn-btn" class="btn-secondary">ターン終了</button>
+                <div class="header-left">
+                    <div id="turn-info">ターン: <span id="turn-count">1</span></div>
+                    <div id="phase-info">フェーズ: <span id="current-phase">味方</span></div>
+                </div>
+                <div class="header-right">
+                    <button id="unit-list-btn" class="btn-secondary">ユニット一覧</button>
+                    <button id="end-turn-btn" class="btn-secondary">ターン終了</button>
+                </div>
             </div>
 
             <div class="game-main">
@@ -77,6 +82,39 @@
             <p class="result-text">味方が全滅しました</p>
             <div id="defeat-stats"></div>
             <button id="restart-defeat-btn" class="btn-primary">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <!-- Unit List Modal -->
+    <div id="unit-list-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ユニット一覧</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="unit-list-section">
+                    <h3>味方ユニット</h3>
+                    <div id="player-units-list" class="units-list"></div>
+                </div>
+                <div class="unit-list-section">
+                    <h3>敵ユニット</h3>
+                    <div id="enemy-units-list" class="units-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unit Detail Modal -->
+    <div id="unit-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="unit-detail-name">ユニット詳細</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="unit-detail-content"></div>
+            </div>
         </div>
     </div>
 

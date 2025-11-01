@@ -98,7 +98,8 @@ class GameState {
             color: template.color,
             x: 0,
             y: 0,
-            acted: false
+            acted: false,
+            movedThisTurn: false
         };
     }
 
@@ -217,11 +218,17 @@ class GameState {
     nextPhase() {
         if (this.phase === PHASES.PLAYER) {
             this.phase = PHASES.ENEMY;
-            this.units.forEach(u => u.acted = false);
+            this.units.forEach(u => {
+                u.acted = false;
+                u.movedThisTurn = false;
+            });
         } else {
             this.phase = PHASES.PLAYER;
             this.turnCount++;
-            this.units.forEach(u => u.acted = false);
+            this.units.forEach(u => {
+                u.acted = false;
+                u.movedThisTurn = false;
+            });
         }
     }
 }
@@ -340,8 +347,38 @@ class UIManager {
             attackBtn: document.getElementById('attack-btn'),
             waitBtn: document.getElementById('wait-btn'),
             cancelBtn: document.getElementById('cancel-btn'),
-            endTurnBtn: document.getElementById('end-turn-btn')
+            endTurnBtn: document.getElementById('end-turn-btn'),
+            unitListBtn: document.getElementById('unit-list-btn'),
+            unitListModal: document.getElementById('unit-list-modal'),
+            unitDetailModal: document.getElementById('unit-detail-modal'),
+            playerUnitsList: document.getElementById('player-units-list'),
+            enemyUnitsList: document.getElementById('enemy-units-list'),
+            unitDetailName: document.getElementById('unit-detail-name'),
+            unitDetailContent: document.getElementById('unit-detail-content')
         };
+        
+        // モーダル閉じるボタンのイベント
+        document.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modal = e.target.closest('.modal');
+                if (modal) {
+                    this.closeModal(modal.id);
+                }
+            });
+        });
+        
+        // モーダル背景クリックで閉じる
+        this.elements.unitListModal.addEventListener('click', (e) => {
+            if (e.target === this.elements.unitListModal) {
+                this.closeModal('unit-list-modal');
+            }
+        });
+        
+        this.elements.unitDetailModal.addEventListener('click', (e) => {
+            if (e.target === this.elements.unitDetailModal) {
+                this.closeModal('unit-detail-modal');
+            }
+        });
     }
 
     showScreen(screenName) {
@@ -383,10 +420,18 @@ class UIManager {
     }
 
     updateActionButtons(enabled, mode) {
-        this.elements.moveBtn.disabled = !enabled || mode === 'move';
-        this.elements.attackBtn.disabled = !enabled || mode === 'attack';
-        this.elements.waitBtn.disabled = !enabled;
-        this.elements.cancelBtn.disabled = mode === 'select';
+        if (mode === 'moved') {
+            // 移動後の状態: 移動ボタンは無効、攻撃・待機は有効
+            this.elements.moveBtn.disabled = true;
+            this.elements.attackBtn.disabled = false;
+            this.elements.waitBtn.disabled = false;
+            this.elements.cancelBtn.disabled = false;
+        } else {
+            this.elements.moveBtn.disabled = !enabled || mode === 'move';
+            this.elements.attackBtn.disabled = !enabled || mode === 'attack';
+            this.elements.waitBtn.disabled = !enabled;
+            this.elements.cancelBtn.disabled = mode === 'select';
+        }
     }
 
     showVictory(turnCount, units) {
@@ -405,6 +450,129 @@ class UIManager {
             <p>再挑戦して勝利を掴め!</p>
         `;
         this.showScreen('defeatScreen');
+    }
+
+    showUnitList(units, gameState = null) {
+        const playerUnits = units.filter(u => u.team === 'player' && u.hp > 0);
+        const enemyUnits = units.filter(u => u.team === 'enemy' && u.hp > 0);
+
+        // 地形情報へのアクセスを保存
+        this.gameState = gameState;
+
+        // 味方ユニット一覧
+        this.elements.playerUnitsList.innerHTML = '';
+        if (playerUnits.length === 0) {
+            this.elements.playerUnitsList.innerHTML = '<p style="color: #aaa; text-align: center; padding: 1rem;">味方ユニットがありません</p>';
+        } else {
+            playerUnits.forEach(unit => {
+                this.elements.playerUnitsList.appendChild(this.createUnitListItem(unit));
+            });
+        }
+
+        // 敵ユニット一覧
+        this.elements.enemyUnitsList.innerHTML = '';
+        if (enemyUnits.length === 0) {
+            this.elements.enemyUnitsList.innerHTML = '<p style="color: #aaa; text-align: center; padding: 1rem;">敵ユニットがありません</p>';
+        } else {
+            enemyUnits.forEach(unit => {
+                this.elements.enemyUnitsList.appendChild(this.createUnitListItem(unit));
+            });
+        }
+
+        this.elements.unitListModal.classList.add('active');
+    }
+
+    createUnitListItem(unit) {
+        const item = document.createElement('div');
+        item.className = `unit-item ${unit.acted ? 'acted' : ''}`;
+        
+        const hpRatio = unit.hp / unit.maxHp;
+        const hpClass = hpRatio > 0.5 ? '' : hpRatio > 0.25 ? 'medium' : 'low';
+        
+        item.innerHTML = `
+            <div class="unit-item-left">
+                <div class="unit-item-name">${unit.name}</div>
+                <div class="unit-item-class">${UNIT_CLASSES[unit.class].name}</div>
+                <div class="unit-item-hp ${hpClass}">HP: ${unit.hp}/${unit.maxHp}</div>
+            </div>
+            <div class="unit-item-right">
+                <div class="unit-team-badge ${unit.team}">${unit.team === 'player' ? '味方' : '敵'}</div>
+            </div>
+        `;
+        
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // 地形情報を取得
+            const terrain = this.gameState ? this.gameState.getTerrain(unit.x, unit.y) : null;
+            this.showUnitDetailWithTerrain(unit, terrain);
+        });
+        
+        return item;
+    }
+
+    showUnitDetailWithTerrain(unit, terrain) {
+        const hpRatio = (unit.hp / unit.maxHp) * 100;
+        
+        this.elements.unitDetailName.textContent = `${unit.name} - ${UNIT_CLASSES[unit.class].name}`;
+        
+        this.elements.unitDetailContent.innerHTML = `
+            <div class="unit-detail-info">
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">HP</div>
+                    <div class="unit-detail-item-value">${unit.hp} / ${unit.maxHp}</div>
+                    <div class="unit-detail-hp-bar">
+                        <div class="unit-detail-hp-fill" style="width: ${hpRatio}%">${Math.round(hpRatio)}%</div>
+                    </div>
+                </div>
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">攻撃力</div>
+                    <div class="unit-detail-item-value">${unit.atk}</div>
+                </div>
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">防御力</div>
+                    <div class="unit-detail-item-value">${unit.def}</div>
+                </div>
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">移動力</div>
+                    <div class="unit-detail-item-value">${unit.move}</div>
+                </div>
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">射程</div>
+                    <div class="unit-detail-item-value">${unit.range}</div>
+                </div>
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">所属</div>
+                    <div class="unit-detail-item-value">${unit.team === 'player' ? '味方' : '敵'}</div>
+                </div>
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">状態</div>
+                    <div class="unit-detail-item-value">${unit.acted ? '行動済み' : '行動可能'}</div>
+                </div>
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">現在位置</div>
+                    <div class="unit-detail-item-value">(${unit.x}, ${unit.y})</div>
+                </div>
+                ${terrain ? `
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">現在地形</div>
+                    <div class="unit-detail-item-value">${terrain.name}</div>
+                </div>
+                <div class="unit-detail-item">
+                    <div class="unit-detail-item-label">地形効果</div>
+                    <div class="unit-detail-item-value">防御+${terrain.defense}</div>
+                </div>
+                ` : ''}
+            </div>
+        `;
+        
+        this.elements.unitDetailModal.classList.add('active');
+    }
+
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('active');
+        }
     }
 }
 
@@ -502,6 +670,7 @@ class GameController {
         document.getElementById('restart-victory-btn').addEventListener('click', () => this.restartGame());
         document.getElementById('restart-defeat-btn').addEventListener('click', () => this.restartGame());
         document.getElementById('end-turn-btn').addEventListener('click', () => this.endTurn());
+        document.getElementById('unit-list-btn').addEventListener('click', () => this.showUnitList());
 
         document.getElementById('move-btn').addEventListener('click', () => this.setMode('move'));
         document.getElementById('attack-btn').addEventListener('click', () => this.setMode('attack'));
@@ -550,13 +719,22 @@ class GameController {
     selectUnit(x, y) {
         const unit = this.state.getUnitAt(x, y);
 
-        if (unit && unit.team === 'player' && !unit.acted) {
-            this.state.selectedUnit = unit;
-            this.state.moveRange = [];
-            this.state.attackRange = [];
-            this.ui.updateUnitInfo(unit);
-            this.ui.updateActionButtons(true, 'select');
-            this.ui.addLog(`${unit.name}を選択`, 'info');
+        if (unit) {
+            if (unit.team === 'player' && !unit.acted) {
+                // 味方ユニットを選択（行動可能な場合のみ）
+                this.state.selectedUnit = unit;
+                this.state.moveRange = [];
+                this.state.attackRange = [];
+                this.ui.updateUnitInfo(unit);
+                // 移動済みの場合は'moved'モード、そうでない場合は'select'モード
+                const mode = unit.movedThisTurn ? 'moved' : 'select';
+                this.ui.updateActionButtons(true, mode);
+                this.ui.addLog(`${unit.name}を選択`, 'info');
+            } else if (unit.team === 'enemy' || unit.acted) {
+                // 敵ユニットまたは行動済みユニットの詳細を表示
+                const terrain = this.state.getTerrain(unit.x, unit.y);
+                this.ui.showUnitDetailWithTerrain(unit, terrain);
+            }
         } else {
             this.state.selectedUnit = null;
             this.state.moveRange = [];
@@ -566,6 +744,10 @@ class GameController {
         }
 
         this.renderer.render(this.state);
+    }
+
+    showUnitList() {
+        this.ui.showUnitList(this.state.units, this.state);
     }
 
     setMode(mode) {
@@ -594,14 +776,18 @@ class GameController {
         if (inRange && !occupied) {
             const unit = this.state.selectedUnit;
             this.state.moveUnit(unit, x, y);
+            unit.movedThisTurn = true; // 移動済みフラグを設定
             this.ui.addLog(`${unit.name}が移動`, 'info');
-            unit.acted = true;
-            this.state.selectedUnit = null;
+            
+            // 移動後も選択状態を維持し、攻撃ができるようにする
+            // actedは設定しない（攻撃後または待機時に設定される）
             this.state.gameMode = 'select';
             this.state.moveRange = [];
+            // 移動後の位置から攻撃範囲を再計算
             this.state.attackRange = [];
-            this.ui.updateActionButtons(false, 'select');
-            this.ui.updateUnitInfo(null);
+            this.ui.updateUnitInfo(unit);
+            // 移動ボタンは無効化、攻撃ボタンと待機ボタンは有効化
+            this.ui.updateActionButtons(true, 'moved');
             this.renderer.render(this.state);
         }
     }
@@ -647,11 +833,29 @@ class GameController {
     }
 
     cancelAction() {
-        this.state.gameMode = 'select';
-        this.state.moveRange = [];
-        this.state.attackRange = [];
-        this.ui.updateActionButtons(true, 'select');
-        this.renderer.render(this.state);
+        if (this.state.selectedUnit && !this.state.selectedUnit.acted) {
+            // 選択中のユニットがあり、まだ行動していない場合
+            // 移動後の状態なら、そのまま選択状態を維持
+            if (this.state.moveRange.length === 0 && this.state.attackRange.length === 0) {
+                // 移動後の状態（移動範囲と攻撃範囲が両方空）の場合
+                // キャンセルは待機と同じ動作
+                this.waitUnit();
+            } else {
+                // 通常のキャンセル（移動/攻撃モードから選択モードに戻る）
+                this.state.gameMode = 'select';
+                this.state.moveRange = [];
+                this.state.attackRange = [];
+                this.ui.updateActionButtons(true, 'select');
+                this.renderer.render(this.state);
+            }
+        } else {
+            // 選択状態をクリア
+            this.state.gameMode = 'select';
+            this.state.moveRange = [];
+            this.state.attackRange = [];
+            this.ui.updateActionButtons(false, 'select');
+            this.renderer.render(this.state);
+        }
     }
 
     async endTurn() {
