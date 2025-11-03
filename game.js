@@ -753,6 +753,12 @@ class GameController {
     setMode(mode) {
         if (!this.state.selectedUnit) return;
 
+        // Prevent movement if already moved this turn
+        if (mode === 'move' && this.state.selectedUnit.movedThisTurn) {
+            this.ui.addLog('このユニットは既に移動済みです', 'info');
+            return;
+        }
+
         this.state.gameMode = mode;
 
         if (mode === 'move') {
@@ -765,7 +771,9 @@ class GameController {
             this.ui.addLog('攻撃対象を選択してください', 'info');
         }
 
-        this.ui.updateActionButtons(true, mode);
+        // Update button states based on whether unit has moved
+        const buttonMode = this.state.selectedUnit.movedThisTurn ? 'moved' : mode;
+        this.ui.updateActionButtons(true, buttonMode);
         this.renderer.render(this.state);
     }
 
@@ -845,7 +853,8 @@ class GameController {
                 this.state.gameMode = 'select';
                 this.state.moveRange = [];
                 this.state.attackRange = [];
-                this.ui.updateActionButtons(true, 'select');
+                const buttonMode = this.state.selectedUnit.movedThisTurn ? 'moved' : 'select';
+                this.ui.updateActionButtons(true, buttonMode);
                 this.renderer.render(this.state);
             }
         } else {
