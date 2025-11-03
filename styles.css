@@ -189,8 +189,8 @@ body {
 }
 
 #unit-info {
-    min-height: 180px;
-    max-height: 220px;
+    flex-shrink: 0;
+    height: 200px;
     overflow-y: auto;
 }
 
@@ -204,8 +204,8 @@ body {
 }
 
 #action-panel {
-    min-height: auto;
-    max-height: none;
+    flex-shrink: 0;
+    height: auto;
     overflow-y: hidden;
 }
 
@@ -215,8 +215,8 @@ body {
 }
 
 #battle-log {
-    flex: 1 1 auto;
-    min-height: 200px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
 }

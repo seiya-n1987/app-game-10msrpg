@@ -776,13 +776,22 @@ class GameController {
     moveSelectedUnit(x, y) {
         const inRange = this.state.moveRange.some(pos => pos.x === x && pos.y === y);
         const occupied = this.state.getUnitAt(x, y);
+        const unit = this.state.selectedUnit;
+
+        // 二重チェック: 既に移動済みのユニットは移動できない
+        if (!unit || unit.movedThisTurn) {
+            this.ui.addLog('このユニットは既に移動済みです', 'info');
+            this.state.gameMode = 'select';
+            this.state.moveRange = [];
+            this.renderer.render(this.state);
+            return;
+        }
 
         if (inRange && !occupied) {
-            const unit = this.state.selectedUnit;
             this.state.moveUnit(unit, x, y);
             unit.movedThisTurn = true; // 移動済みフラグを設定
             this.ui.addLog(`${unit.name}が移動`, 'info');
-            
+
             // 移動後も選択状態を維持し、攻撃ができるようにする
             // actedは設定しない（攻撃後または待機時に設定される）
             this.state.gameMode = 'select';
