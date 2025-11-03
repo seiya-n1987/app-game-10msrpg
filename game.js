@@ -346,7 +346,6 @@ class UIManager {
             moveBtn: document.getElementById('move-btn'),
             attackBtn: document.getElementById('attack-btn'),
             waitBtn: document.getElementById('wait-btn'),
-            cancelBtn: document.getElementById('cancel-btn'),
             endTurnBtn: document.getElementById('end-turn-btn'),
             unitListBtn: document.getElementById('unit-list-btn'),
             unitListModal: document.getElementById('unit-list-modal'),
@@ -425,12 +424,10 @@ class UIManager {
             this.elements.moveBtn.disabled = true;
             this.elements.attackBtn.disabled = false;
             this.elements.waitBtn.disabled = false;
-            this.elements.cancelBtn.disabled = false;
         } else {
             this.elements.moveBtn.disabled = !enabled || mode === 'move';
             this.elements.attackBtn.disabled = !enabled || mode === 'attack';
             this.elements.waitBtn.disabled = !enabled;
-            this.elements.cancelBtn.disabled = mode === 'select';
         }
     }
 
@@ -675,7 +672,6 @@ class GameController {
         document.getElementById('move-btn').addEventListener('click', () => this.setMode('move'));
         document.getElementById('attack-btn').addEventListener('click', () => this.setMode('attack'));
         document.getElementById('wait-btn').addEventListener('click', () => this.waitUnit());
-        document.getElementById('cancel-btn').addEventListener('click', () => this.cancelAction());
     }
 
     startGame() {
@@ -836,33 +832,6 @@ class GameController {
             this.state.attackRange = [];
             this.ui.updateActionButtons(false, 'select');
             this.ui.updateUnitInfo(null);
-            this.renderer.render(this.state);
-        }
-    }
-
-    cancelAction() {
-        if (this.state.selectedUnit && !this.state.selectedUnit.acted) {
-            // 選択中のユニットがあり、まだ行動していない場合
-            // 移動後の状態なら、そのまま選択状態を維持
-            if (this.state.moveRange.length === 0 && this.state.attackRange.length === 0) {
-                // 移動後の状態（移動範囲と攻撃範囲が両方空）の場合
-                // キャンセルは待機と同じ動作
-                this.waitUnit();
-            } else {
-                // 通常のキャンセル（移動/攻撃モードから選択モードに戻る）
-                this.state.gameMode = 'select';
-                this.state.moveRange = [];
-                this.state.attackRange = [];
-                const buttonMode = this.state.selectedUnit.movedThisTurn ? 'moved' : 'select';
-                this.ui.updateActionButtons(true, buttonMode);
-                this.renderer.render(this.state);
-            }
-        } else {
-            // 選択状態をクリア
-            this.state.gameMode = 'select';
-            this.state.moveRange = [];
-            this.state.attackRange = [];
-            this.ui.updateActionButtons(false, 'select');
             this.renderer.render(this.state);
         }
     }
